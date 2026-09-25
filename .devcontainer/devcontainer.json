@@ -1,0 +1,10 @@
+{
+  "name": "SASI-QR",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm ci && npm run build",
+  "postStartCommand": "setsid nohup npm start > /tmp/sasi.log 2>&1 &",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "SASI-QR", "onAutoForward": "openBrowser" }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "sasi-qr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "dev:https": "node server.js --https",
+    "peraga": "node peraga.js",
+    "video": "node video.js",
+    "build": "vite build",
+    "start": "node server.js --produksi",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "selfsigned": "^5.5.0",
+    "vite": "^6.0.7"
+  }
+}

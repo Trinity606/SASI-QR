@@ -1,0 +1,668 @@
+/* SASI-QR, lapisan gaya purwarupa.
+   Token warna diambil apa adanya dari DESIGN.md Bagian 4.1, sehingga purwarupa
+   dan deck presentasi tetap satu keluarga. Yang berbeda hanya cangkangnya:
+   di sini dipakai konvensi antarmuka dompet digital, sesuai RENCANA-WEB.md 3.2.
+
+   Dua pelonggaran yang disengaja dan hanya berlaku di purwarupa:
+   bayangan halus pada lembar, dan radius besar pada lembar serta tombol utama.
+   Keduanya tidak berlaku pada slide. */
+
+:root {
+  /* Warna diambil dari tangkapan layar referensi: gradasi biru pada kepala,
+     bidang isi gelap kebiruan, kartu satu tingkat lebih terang, dan aksen
+     biru muda untuk keadaan aktif. */
+  --grad-1: #2FB3E8;
+  --grad-2: #0E58BE;
+  --primary: #2AA9E0;
+  --primary-active: #1478D4;
+  --primary-tint: #12263A;
+
+  --ink: #ffffff;
+  --body: #A8B2BF;
+  --muted: #7C8896;
+  --muted-soft: #5E6873;
+
+  --canvas: #0E1217;
+  --canvas-soft: #151A21;
+  --surface-card: #191F26;
+  --surface-strong: #283039;
+  --hairline: #232A33;
+  --hairline-strong: #313A45;
+  --on-primary: #ffffff;
+
+  --error: #FF5C7A;
+  --error-bg: #2C161C;
+  --success: #3DD68C;
+  --success-bg: #12291F;
+  --warn: #F5B544;
+  --warn-bg: #2A2013;
+  --abu: #7C8896;
+  --abu-bg: #1D242C;
+
+  --stage-peduli: #2FB3E8;
+  --stage-kenali: #8E7BE8;
+  --stage-adukan: #F5B544;
+
+  /* Satu keluarga huruf untuk seluruh antarmuka, mengikuti referensi.
+     Mono hanya disisakan untuk data teknis yang harus berbaris lurus:
+     NMID, cap muatan, kode aturan, dan hash. Label, cip, dan paragraf
+     keterangan memakai sans. */
+  --f-sans: 'Plus Jakarta Sans', system-ui, 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 9999px;
+
+  --s-xxs: 4px;
+  --s-xs: 8px;
+  --s-sm: 12px;
+  --s-base: 16px;
+  --s-md: 20px;
+  --s-lg: 24px;
+  --s-xl: 32px;
+
+  --bayang-lembar: 0 -10px 34px rgba(0, 0, 0, 0.5);
+  --bayang-kartu: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--body);
+  font-family: var(--f-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+#akar { min-height: 100dvh; }
+
+/* ============================================================ cangkang app */
+
+.app {
+  max-width: 460px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: var(--canvas);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kepala gelap. Memberi kesan aplikasi finansial dan menjadi latar kartu saldo. */
+.kepala-app {
+  background: linear-gradient(160deg, var(--grad-1) 0%, var(--grad-2) 100%);
+  color: #fff;
+  padding: calc(var(--s-base) + env(safe-area-inset-top)) var(--s-base) 56px;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+.kepala-app .merek {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+.kepala-app h1 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+  margin: 2px 0 0;
+}
+.kepala-app .sapaan { color: rgba(255, 255, 255, 0.72); font-size: 13px; margin-top: 2px; }
+
+/* Lembar isi utama. */
+.lembar-isi {
+  flex: 1;
+  padding: var(--s-base) var(--s-base) 96px;
+}
+
+/* Lembar yang naik dari bawah. Dipakai layar verifikasi dan konfirmasi. */
+.tirai {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.66);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40;
+  animation: pudar 120ms ease-out;
+}
+.lembar {
+  background: var(--surface-card);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: var(--bayang-lembar);
+  width: 100%;
+  max-width: 460px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding-bottom: calc(var(--s-base) + env(safe-area-inset-bottom));
+  animation: naik 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes naik { from { transform: translateY(22px); } to { transform: none; } }
+@keyframes pudar { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lembar, .tirai { animation: none; }
+}
+
+/* ============================================================== tipografi */
+
+h1, h2, h3 { color: var(--ink); margin: 0; font-weight: 700; letter-spacing: -0.4px; }
+h2 { font-size: 20px; letter-spacing: -0.4px; }
+h3 { font-size: 16px; font-weight: 600; }
+p { margin: 0 0 var(--s-sm); }
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.kecil { font-size: 13px; }
+.redup { color: var(--muted); }
+.tegas { color: var(--ink); }
+.sumber { font-size: 12px; color: var(--muted); }
+
+.nominal-besar {
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* ============================================================== permukaan */
+
+.kartu {
+  background: var(--surface-card);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  padding: var(--s-base);
+  margin-bottom: var(--s-sm);
+}
+.kartu.rapat { padding: var(--s-sm); }
+.kartu.tanpa-garis { border-color: transparent; box-shadow: var(--bayang-kartu); }
+
+.baris { display: flex; align-items: center; gap: var(--s-sm); }
+.baris.antara { justify-content: space-between; }
+.tumpuk { display: flex; flex-direction: column; gap: var(--s-sm); }
+.pisah { border: 0; border-top: 1px solid var(--hairline); margin: var(--s-base) 0; }
+
+/* ================================================================ kendali */
+
+button {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-card);
+  color: var(--ink);
+  padding: 12px var(--s-base);
+  cursor: pointer;
+  min-height: 48px;
+  transition: opacity 120ms;
+}
+button:active { opacity: 0.75; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Tombol utama, satu per layar. Inilah satu-satunya pemakaian primary. */
+button.utama {
+  background: var(--primary-active);
+  border-color: var(--primary-active);
+  color: var(--on-primary);
+  min-height: 52px;
+  border-radius: var(--r-lg);
+  font-size: 16px;
+}
+button.bahaya { background: var(--error); border-color: var(--error); color: #fff; min-height: 52px; border-radius: var(--r-lg); }
+button.sunyi { background: transparent; border-color: transparent; color: var(--muted); font-weight: 500; }
+button.penuh { width: 100%; }
+button.kecil { min-height: 38px; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: var(--r-sm); }
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 16px; /* di bawah 16px iOS memperbesar halaman sendiri */
+  width: 100%;
+  padding: 13px var(--s-sm);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+  color: var(--ink);
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+label > .label { display: block; margin-bottom: var(--s-xxs); }
+
+/* ======================================================= layar verifikasi */
+
+/* Pita keadaan, 6 pt di tepi atas lembar. DESIGN.md 6.5. */
+.pita-keadaan { height: 6px; border-radius: var(--r-xl) var(--r-xl) 0 0; }
+.pita-keadaan.hijau { background: var(--success); }
+.pita-keadaan.kuning { background: var(--warn); }
+.pita-keadaan.merah { background: var(--error); }
+.pita-keadaan.abu { background: var(--hairline-strong); }
+
+.pegangan {
+  width: 36px; height: 4px; border-radius: var(--r-pill);
+  background: var(--hairline-strong);
+  margin: var(--s-sm) auto var(--s-xs);
+}
+
+.verif-isi { padding: var(--s-xs) var(--s-base) var(--s-base); }
+
+.awal {
+  width: 52px; height: 52px; flex: none;
+  border-radius: var(--r-pill);
+  display: grid; place-items: center;
+  font-weight: 600; font-size: 17px;
+  background: var(--surface-strong); color: var(--ink);
+}
+.awal.hijau { background: var(--success-bg); color: var(--success); }
+.awal.kuning { background: var(--warn-bg); color: var(--warn); }
+.awal.merah { background: var(--error-bg); color: var(--error); }
+.awal.abu { background: var(--abu-bg); color: var(--muted); }
+
+.nama-merchant { font-size: 19px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+
+.cip {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--hairline-strong);
+  background: var(--canvas-soft);
+  color: var(--muted);
+}
+
+/* Blok putusan. Kode aturan wajib terbaca dari jarak delapan meter, karena
+   catatan panggung memerintahkan pembicara menyebutnya dengan suara. */
+.blok-putusan {
+  display: flex; align-items: center; gap: var(--s-sm);
+  border-radius: var(--r-lg);
+  padding: var(--s-sm) var(--s-base);
+  border: 1px solid;
+}
+.blok-putusan.hijau { background: var(--success-bg); border-color: var(--success); }
+.blok-putusan.kuning { background: var(--warn-bg); border-color: var(--warn); }
+.blok-putusan.merah { background: var(--error-bg); border-color: var(--error); }
+.blok-putusan.abu { background: var(--abu-bg); border-color: var(--hairline-strong); }
+
+.kode-aturan {
+  font-family: var(--f-mono);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  flex: none;
+}
+.kode-aturan.hijau { color: var(--success); }
+.kode-aturan.kuning { color: var(--warn); }
+.kode-aturan.merah { color: var(--error); }
+.kode-aturan.abu { color: var(--muted); }
+
+.rincian { margin-top: var(--s-base); border-top: 1px solid var(--hairline); padding-top: var(--s-xs); }
+.rincian summary { cursor: pointer; font-size: 13px; color: var(--muted); padding: var(--s-xxs) 0; }
+
+.status-putusan { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+
+/* Daftar atribut kode. */
+.atribut { width: 100%; border-collapse: collapse; font-size: 13px; }
+.atribut td { padding: 9px 0; border-top: 1px solid var(--hairline); }
+.atribut tr:first-child td { border-top: 0; }
+.atribut td:first-child { color: var(--muted); width: 45%; }
+.atribut td:last-child { color: var(--ink); text-align: right; font-family: var(--f-mono); word-break: break-all; }
+
+/* ================================================================ pemindai */
+
+.kamera-penuh {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: #000;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.kamera-penuh video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Lubang bidik dengan empat bingkai sudut. */
+.bidik { position: absolute; inset: 0; display: grid; place-items: center; }
+.bidik-kotak { position: relative; width: 62%; aspect-ratio: 1; }
+.bidik-kotak i {
+  position: absolute; width: 26px; height: 26px;
+  border: 3px solid #fff; border-radius: 3px;
+}
+.bidik-kotak i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.bidik-kotak i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.bidik-kotak i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.bidik-kotak i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+.jejak-langkah {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================== navigasi */
+
+
+/* Kartu triad PeKA di beranda, DESIGN.md 6.4. */
+.kartu-tahap {
+  width: 100%; text-align: left;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+  padding: 0; overflow: hidden;
+  min-height: 0;
+}
+.kartu-tahap .pita-tahap { height: 3px; }
+.kartu-tahap .isi { padding: var(--s-base); }
+.kartu-tahap .judul { font-size: 17px; font-weight: 600; color: var(--ink); }
+.kartu-tahap .ket { font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+
+/* ================================================================== lain */
+
+.keadaan { border-radius: var(--r-md); padding: var(--s-sm); border: 1px solid; font-size: 13px; }
+.keadaan.sukses { background: var(--success-bg); border-color: var(--success); color: var(--ink); }
+.keadaan.peringatan { background: var(--warn-bg); border-color: var(--warn); color: var(--ink); }
+.keadaan.galat { background: var(--error-bg); border-color: var(--error); color: var(--ink); }
+
+code.muatan {
+  display: block; font-family: var(--f-mono); font-size: 11px;
+  background: #0B0F14; border-left: 2px solid var(--primary);
+  padding: var(--s-sm); word-break: break-all; color: var(--body); line-height: 1.5;
+}
+
+/* Halaman contoh dua keadaan berdampingan, untuk tangkapan layar slide. */
+.papan-contoh {
+  background: var(--canvas);
+  padding: var(--s-lg) var(--s-base);
+  min-height: 100dvh;
+}
+.dua-bingkai {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--s-lg);
+  max-width: 980px;
+  margin: 0 auto;
+}
+.bingkai-ponsel {
+  background: var(--surface-card);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+/* ===================================================== khusus konsol petugas */
+/* Konsol adalah alat kerja internal, bukan bagian alur PeKA. Gayanya dibuat
+   padat dan seadanya, tidak mengikuti bahasa dompet digital. */
+
+
+.kartu table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kartu table td { padding: 7px 0; border-top: 1px solid var(--hairline); vertical-align: top; }
+.kartu table tr:first-child td { border-top: 0; }
+.kartu table th {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted);
+  text-align: left; padding: var(--s-xs) 0;
+}
+.kartu table td.angka { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.lencana {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: var(--r-pill); border: 1px solid;
+}
+.lencana.sukses { color: var(--success); border-color: var(--success); background: var(--success-bg); }
+.lencana.peringatan { color: var(--warn); border-color: var(--warn); background: var(--warn-bg); }
+.lencana.galat { color: var(--error); border-color: var(--error); background: var(--error-bg); }
+.lencana.abu { color: var(--muted); border-color: var(--hairline-strong); background: var(--canvas-soft); }
+
+.skor-bar { height: 6px; background: var(--surface-strong); border-radius: var(--r-pill); overflow: hidden; }
+.skor-bar > i { display: block; height: 100%; border-radius: var(--r-pill); }
+.skor-bar > i.sukses { background: var(--success); }
+.skor-bar > i.peringatan { background: var(--warn); }
+.skor-bar > i.galat { background: var(--error); }
+
+/* Pembanding dua identitas, tampil saat NMID kode berbeda dari NMID segel.
+   Inilah inti aturan R4 yang dibuat terlihat, bukan hanya disebut. */
+.pembanding { margin-top: var(--s-base); }
+.pembanding-baris { display: flex; flex-direction: column; gap: 1px; padding: var(--s-sm); border-radius: var(--r-md); background: var(--canvas-soft); border: 1px solid var(--hairline); }
+.pembanding-baris.bahaya { background: var(--error-bg); border-color: var(--error); }
+.pembanding-baris .tegas { font-weight: 600; font-size: 15px; }
+.pembanding-panah { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--error); text-align: center; padding: 6px 0; }
+
+/* ================================================= penanda tahap dan kaki */
+/* Nama tahap PeKA tetap terlihat di tiap layar, tetapi sebagai penanda, bukan
+   sebagai menu. Perangkat sudah terkunci pada satu pihak. */
+
+.jejak-tahap {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-xs);
+  margin-bottom: var(--s-base);
+  padding-bottom: var(--s-xs);
+  border-bottom: 1px solid var(--hairline);
+}
+.jejak-tahap .nama-tahap { font-size: 15px; font-weight: 600; color: var(--ink); }
+
+
+.prosedur {
+  margin: var(--s-xs) 0 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--body);
+}
+.prosedur li { margin-bottom: 4px; }
+
+/* Keadaan bersiap pada pemindai. Jeda setelah pindai pertama mencegah kode
+   yang sama terbaca dua kali, dan lapisan ini memberitahu kenapa alatnya
+   belum bereaksi. */
+.bidik-kotak.bersiap i { border-color: rgba(255, 255, 255, 0.4); }
+.lapis-bersiap {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px var(--s-base) calc(10px + env(safe-area-inset-bottom));
+  background: rgba(14, 18, 23, 0.82);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Perjalanan aduan antar perangkat. Dibuat terlihat supaya penonton demo
+   mengerti bahwa yang memutus penipuan adalah pihak ketiga. */
+.langkah-aduan { list-style: none; margin: var(--s-sm) 0 0; padding: 0; font-size: 13px; }
+.langkah-aduan li {
+  position: relative;
+  padding: 8px 0 8px 26px;
+  color: var(--muted);
+  border-top: 1px solid var(--hairline);
+}
+.langkah-aduan li:first-child { border-top: 0; }
+.langkah-aduan li::before {
+  content: '';
+  position: absolute; left: 4px; top: 14px;
+  width: 10px; height: 10px; border-radius: var(--r-pill);
+  border: 2px solid var(--hairline-strong);
+  background: var(--surface-card);
+}
+.langkah-aduan li.jadi { color: var(--body); }
+.langkah-aduan li.jadi::before { background: var(--success); border-color: var(--success); }
+.langkah-aduan li.menunggu::before { border-color: var(--warn); }
+
+.denyut {
+  display: inline-block; width: 6px; height: 6px; margin-left: 6px;
+  border-radius: var(--r-pill); background: var(--warn);
+  animation: denyut 1.2s ease-in-out infinite;
+}
+@keyframes denyut { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .denyut { animation: none; } }
+
+/* Pemberitahuan pembayaran di perangkat pedagang. Dibuat menonjol karena
+   inilah yang dilihat pedagang dari kejauhan sambil melayani pembeli. */
+.notifikasi {
+  background: var(--success-bg);
+  border: 1px solid var(--success);
+  border-radius: var(--r-lg);
+  padding: var(--s-base);
+}
+.notifikasi-kepala { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-sm); }
+.notifikasi-nominal {
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -1.1px;
+  line-height: 1.1;
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+  margin: var(--s-xs) 0 2px;
+}
+
+/* Pemberitahuan aduan baru di meja petugas. Memakai warna galat karena yang
+   datang adalah dugaan penipuan, bukan kabar baik. */
+.notifikasi.bahaya { background: var(--error-bg); border-color: var(--error); }
+.notifikasi.bahaya .notifikasi-nominal { color: var(--error); }
+
+/* ==========================================================================
+   Beranda dompet, khusus perangkat pembeli.
+
+   Struktur mengikuti kebiasaan aplikasi dompet digital: kepala bermerek yang
+   membawa saldo, lalu navigasi bawah dengan tombol pindai bundar di tengah.
+
+   Warnanya tetap milik SASI-QR. Tidak ada nama, logo, maupun susunan warna
+   merek penyedia dompet digital mana pun yang dipakai di sini.
+   ========================================================================== */
+
+.kepala-dompet {
+  background: linear-gradient(160deg, var(--grad-1) 0%, var(--grad-2) 100%);
+  color: #fff;
+  padding: calc(var(--s-base) + env(safe-area-inset-top)) var(--s-base) var(--s-lg);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+.kepala-dompet.ringkas { padding-bottom: var(--s-base); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+.kepala-dompet .merek-baris { display: flex; align-items: center; justify-content: space-between; }
+.kepala-dompet .wordmark {
+  font-size: 19px; font-weight: 700; letter-spacing: -0.5px; color: #fff;
+}
+.kepala-dompet .wordmark span { font-weight: 400; opacity: 0.8; }
+
+.saldo-baris { display: flex; align-items: flex-end; gap: var(--s-xs); margin-top: var(--s-md); }
+.saldo-mata-uang { font-size: 15px; font-weight: 500; opacity: 0.85; padding-bottom: 7px; }
+.saldo-angka {
+  font-size: 40px; font-weight: 800; letter-spacing: -1.4px; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tombol-bulat {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: var(--r-pill);
+  min-height: 34px; padding: 5px 14px;
+  font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.tombol-bulat.ikon-saja { padding: 5px; width: 34px; justify-content: center; }
+
+.cip-gulir {
+  display: flex; gap: var(--s-xs); margin-top: var(--s-base);
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.cip-gulir::-webkit-scrollbar { display: none; }
+.cip-terang {
+  flex: none;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  color: #fff;
+  border-radius: var(--r-pill);
+  padding: 6px 12px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; white-space: nowrap;
+}
+
+
+/* Daftar lapak di sekitar. */
+.baris-lapak {
+  display: flex; align-items: center; gap: var(--s-sm);
+  width: 100%; text-align: left;
+  border: 0; border-top: 1px solid var(--hairline);
+  border-radius: 0; background: transparent;
+  padding: var(--s-sm) 0; min-height: 0;
+}
+.baris-lapak:first-of-type { border-top: 0; }
+.baris-lapak .awal { width: 40px; height: 40px; font-size: 14px; }
+.baris-lapak .nama { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+/* Navigasi bawah dengan tombol pindai bundar di tengah. */
+.nav-dompet {
+  position: sticky; bottom: 0; z-index: 10;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  align-items: end;
+  background: var(--canvas-soft);
+  border-top: 1px solid var(--hairline-strong);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-dompet button {
+  border: 0; border-radius: 0; background: transparent;
+  padding: 9px 2px 10px; min-height: 58px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; color: var(--muted);
+}
+.nav-dompet button[aria-current='true'] { color: var(--primary); }
+
+/* Tombol pindai: bundar, menonjol ke atas, satu-satunya voltase di layar. */
+.nav-dompet .tombol-pindai {
+  color: var(--on-primary);
+  font-size: 10px;
+  gap: 0;
+  padding: 0 0 8px;
+  justify-content: flex-end;
+}
+.nav-dompet .tombol-pindai .lingkar {
+  width: 58px; height: 58px; border-radius: var(--r-pill);
+  background: linear-gradient(150deg, var(--grad-1) 0%, var(--grad-2) 100%);
+  color: var(--on-primary);
+  display: grid; place-items: center;
+  margin-top: -22px; margin-bottom: 3px;
+  border: 4px solid var(--canvas-soft);
+  box-shadow: 0 4px 14px rgba(20, 120, 212, 0.45);
+}
+.nav-dompet .tombol-pindai span.tulisan { color: var(--primary); font-weight: 700; }
+
+/* Kepala bagian di dalam panel. */
+.kepala-bagian {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: var(--s-xs);
+}
+
+.riwayat-baris {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-sm);
+  padding: var(--s-sm) 0; border-top: 1px solid var(--hairline);
+}
+.riwayat-baris:first-of-type { border-top: 0; }
+
+/* Baris keterangan di bawah angka besar pada kepala. */
+.kepala-keterangan { color: rgba(255, 255, 255, 0.82); font-size: 13px; margin-top: 6px; }
+
+
+/* Kaki ganti pihak. Sengaja tenang dan berada di ujung bawah isi, supaya
+   tersedia saat menyiapkan perangkat tetapi tidak terpencit saat demo. */
+.kaki-ganti {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-sm);
+  padding: var(--s-sm) var(--s-base) var(--s-base);
+  border-top: 1px solid var(--hairline);
+  margin-top: auto;
+}
