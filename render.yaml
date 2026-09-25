@@ -1,0 +1,13 @@
+# Render: satu layanan web Node. Data demo tersimpan di disk sementara dan
+# kembali ke seed setiap kali layanan dijalankan ulang, dan itu disengaja.
+services:
+  - type: web
+    name: sasi-qr
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/salinan
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

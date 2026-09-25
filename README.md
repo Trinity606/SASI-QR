@@ -42,6 +42,14 @@ Perangkat lain  http://192.168.x.x:5173
 
 Buka alamat pertama di laptop dan alamat kedua di ponsel yang berada pada Wi-Fi yang sama.
 
+### Demo daring lewat Render
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Trinity606/SASI-QR)
+
+Konfigurasinya ada di `render.yaml`. Paket gratis tidur setelah 15 menit tanpa
+pengunjung, jadi buka alamatnya sekitar satu menit sebelum demo. Data demo
+kembali ke seed setiap kali layanan bangun ulang.
+
 ### Demo daring lewat GitHub Codespaces
 
 Di halaman repo: **Code → Codespaces → Create codespace on main**. Codespace
